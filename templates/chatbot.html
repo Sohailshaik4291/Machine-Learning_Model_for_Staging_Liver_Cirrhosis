@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Liver Health Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #chat-window { max-width: 600px; margin: auto; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; }
+    input, button { padding: 10px; margin-top: 10px; width: 70%; }
+    button { width: 25%; }
+  </style>
+</head>
+<body>
+  <h1>Liver Health Chatbot</h1>
+  <div id="chat-window">
+    <div id="messages"></div>
+    <input type="text" id="user-input" placeholder="Ask about liver health...">
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    function sendMessage() {
+      let message = document.getElementById("user-input").value;
+      fetch('/chatbot', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: message })
+      })
+      .then(response => response.json())
+      .then(data => {
+          let chat = document.getElementById("messages");
+          chat.innerHTML += "<p><strong>You:</strong> " + message + "</p>";
+          chat.innerHTML += "<p><strong>Bot:</strong> " + data.response + "</p>";
+          document.getElementById("user-input").value = "";
+          chat.scrollTop = chat.scrollHeight;
+      });
+    }
+  </script>
+</body>
+</html>

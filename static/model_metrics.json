@@ -1,0 +1,44 @@
+{
+    "ensemble": {
+        "Accuracy": 0.9995,
+        "Precision": 0.9993,
+        "Recall": 1.0,
+        "F1-score": 0.9996,
+        "AUC": 1.0
+    },
+    "random_forest": {
+        "Accuracy": 1.0,
+        "Precision": 1.0,
+        "Recall": 1.0,
+        "F1-score": 1.0,
+        "AUC": 1.0
+    },
+    "xgboost": {
+        "Accuracy": 0.9995,
+        "Precision": 0.9993,
+        "Recall": 1.0,
+        "F1-score": 0.9996,
+        "AUC": 1.0
+    },
+    "svm": {
+        "Accuracy": 0.7197,
+        "Precision": 0.7197,
+        "Recall": 1.0,
+        "F1-score": 0.837,
+        "AUC": 0.4975
+    },
+    "knn": {
+        "Accuracy": 0.7197,
+        "Precision": 0.7197,
+        "Recall": 1.0,
+        "F1-score": 0.837,
+        "AUC": 0.5246
+    },
+    "mlpnn": {
+        "Accuracy": 0.7197,
+        "Precision": 0.7197,
+        "Recall": 1.0,
+        "F1-score": 0.837,
+        "AUC": 0.5022
+    }
+}

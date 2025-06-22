@@ -1,0 +1,306 @@
+<!-- <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <h1> Machine Learning Model for Stagig Liver Cirrhosis</h1>
+
+
+    
+    <h2>Welcome, {{ username }}!</h2>
+    
+    <a href="/logout">Logout</a>
+</body>
+</html> -->
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+</head>
+<body>
+    <h1>Machine Learning Model for Staging Liver Cirrhosis</h1>
+    <nav style="background-color: #333; padding: 10px;">
+        <h2>Welcome, {{ username }}!</h2>
+        <a href="#" onclick="toggleReports()" style="color: white; margin-right: 20px; text-decoration: none;">Model Accuracy Reports</a>
+        <a href="/logout" style="color: white; text-decoration: none;">Logout</a>
+        <!-- <a href="#" onclick="universalRanges()" style="color:white;text-decoration:none; margin-right: 20px;margin-left:20px;">Universal ranges</a> -->
+    </nav>
+
+    <form id="predictionForm"> 
+        <label for="model">Select Model:</label>
+        <select name="model" id="model">
+            {% for model in models %}
+                <option value="{{ model }}">{{ model.replace('_', ' ').title() }}</option>
+            {% endfor %}
+        </select>
+        
+        <br>
+    
+        <label>Age range(min 0 - max 90):</label> <input type="text" name="age" required /><br>
+        Total Bilirubin (range 0.34-1.84): <input type="text" name="total_bilirubin" required><br>
+        Direct Bilirubin (range 0.10-1.31): <input type="text" name="direct_bilirubin" required><br>
+        Alkaline Phosphatase (range 4.16-6.15): <input type="text" name="alkphos" required><br>
+        SGPT (range 2.4-4.76): <input type="text" name="sgpt" required><br>
+        SGOT (range 2.40-5.19): <input type="text" name="sgot" required><br>
+        Total Proteins (range 3.7-9.3): <input type="text" name="total_proteins" required><br>
+        Albumin (range 0.90-5.50): <input type="text" name="albumin" required><br>
+        A/G Ratio (0.30-1.70): <input type="text" name="ag_ratio" required><br>
+        
+        Gender:
+        <select name="gender" id="gender">
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+        </select><br>
+        
+        <button type="submit">Predict</button>
+    </form>
+    
+    <script>
+        document.getElementById("submitBtn").addEventListener("click", function() {
+            document.getElementById("predictionForm").submit();
+        });
+    </script>
+
+    
+    
+    
+
+
+    <!-- <form id="predictionForm">
+        <label for="model">Select Model:</label>
+        <select name="model" id="model">
+            {% for model in models %}
+                <option value="{{ model }}">{{ model.replace('_', ' ').title() }}</option>
+            {% endfor %}
+        </select>
+        
+        <br>
+
+       <label> Age:</label> <input type="text" name="age" required /><br>
+        Total Bilirubin: <input type="text" name="total_bilirubin" required><br>
+        Direct Bilirubin: <input type="text" name="direct_bilirubin" required><br>
+        Alkaline Phosphatase: <input type="text" name="alkphos" required><br>
+        SGPT: <input type="text" name="sgpt" required><br>
+        SGOT: <input type="text" name="sgot" required><br>
+        Total Proteins: <input type="text" name="total_proteins" required><br>
+        Albumin: <input type="text" name="albumin" required><br>
+        A/G Ratio: <input type="text" name="ag_ratio" required><br>
+        
+        Gender:
+        <select name="gender" id="gender">
+            <option value="female">Female</option>
+            <option value="male">Male</option>
+        </select><br>
+    
+        <button type="submit">Predict</button>
+    </form>
+     -->
+
+
+    <h3 id="predictionResult"></h3>
+    <img id="predictionPlot" style="display:none; width: 300px; height: 250px;" />
+    <!-- Progress bar for severity -->
+    <div style="display:flex;width: 100%; background: #e0e0e0; border-radius: 10px; margin-top: 10px;">
+        <div id="severityBar" style="width: 0%; height: 30px; background: red; text-align: center; line-height: 30px; color: white; font-weight: bold;">
+        0%
+        </div>
+    </div>
+    
+    
+    
+    <script>
+        document.getElementById("predictionForm").onsubmit = async function(e) {
+            e.preventDefault();
+            
+            let formData = new FormData(this);
+            
+            // Get gender value and convert to one-hot encoding
+            let gender = document.getElementById("gender").value;
+            formData.append("gender_female", gender === "female" ? "1" : "0");
+            formData.append("gender_male", gender === "male" ? "1" : "0");
+            
+               // Get selected model
+               let model = document.getElementById("model").value;
+               formData.append("model", model);
+
+            // Send request to Flask backend
+            let response = await fetch("/predict", {
+                method: "POST",
+                body: formData
+            });
+    
+            let result = await response.json();
+    
+            if (result.error) {
+                document.getElementById("predictionResult").innerText = "Error: " + result.error;
+            } else {
+                document.getElementById("predictionResult").innerText = "Prediction: " + result.prediction;
+                document.getElementById("predictionPlot").src = "data:image/png;base64," + result.plot_url;
+                document.getElementById("predictionPlot").style.display = "block";
+               
+                // update progress bar
+                let severity = result.severity;
+                let severityBar = document.getElementById("severityBar");
+                severityBar.style.width = severity + "%";
+                severityBar.innerText = severity + "%";
+    
+                // Change color based on severity level
+                if (severity < 30) {
+                    severityBar.style.background = "green";  // Mild
+                } else if (severity < 70) {
+                    severityBar.style.background = "orange"; // Moderate
+                } else {
+                    severityBar.style.background = "red";    // Severe
+                }
+            }
+        }
+    </script>
+    <!-- <h2>Model Accuracy Reports</h2>
+    <table border="1" cellpadding="8" style="border-collapse: collapse;">
+        <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1-score</th>
+            <th>AUC</th>
+        </tr>
+        {% for model, scores in metrics.items() %}
+        <tr>
+            <td>{{ model.replace('_', ' ').title() }}</td>
+            <td>{{ scores.Accuracy }}</td>
+            <td>{{ scores.Precision }}</td>
+            <td>{{ scores.Recall }}</td>
+            <td>{{ scores["F1-score"] }}</td>
+            <td>{{ scores.AUC }}</td>
+        </tr>
+        {% endfor %}
+    </table> -->
+    <div id="modelReports" style="display: none; margin-top: 20px;">
+        <h2>Model Accuracy Reports</h2>
+        <table border="1" cellpadding="8" style="border-collapse: collapse;">
+            <tr>
+                <th>Model</th>
+                <th>Accuracy</th>
+                <th>Precision</th>
+                <th>Recall</th>
+                <th>F1-score</th>
+                <th>AUC</th>
+            </tr>
+            {% for model, scores in metrics.items() %}
+            <tr>
+                <td>{{ model.replace('_', ' ').title() }}</td>
+                <td>{{ scores.Accuracy }}</td>
+                <td>{{ scores.Precision }}</td>
+                <td>{{ scores.Recall }}</td>
+                <td>{{ scores["F1-score"] }}</td>
+                <td>{{ scores.AUC }}</td>
+                <td><img src="{{ url_for('static', filename='roc_curves/' + model + '.png') }}" width="200"></td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    <script>
+        function toggleReports() {
+            var reportsDiv = document.getElementById("modelReports");
+            if (reportsDiv.style.display === "none") {
+                reportsDiv.style.display = "block";
+            } else {
+                reportsDiv.style.display = "none";
+            }
+        }
+    </script>
+    <!-- new code batch prediction -->
+    <hr>
+    <h2>Batch Prediction (Upload CSV)</h2>
+    <form id="batchForm" enctype="multipart/form-data">
+        <label for="batch_model">Select Model:</label>
+        <select name="batch_model" id="batch_model">
+            {% for model in models %}
+                <option value="{{ model }}">{{ model.replace('_', ' ').title() }}</option>
+            {% endfor %}
+        </select><br><br>
+    
+        <label for="csvFile">Upload CSV File:</label>
+        <input type="file" name="csvFile" accept=".csv" required><br><br>
+    
+        <button type="submit">Run Batch Prediction</button>
+    </form>
+    
+    <div id="batchResult" style="margin-top: 20px;"></div>
+    <script>
+    document.getElementById("batchForm").onsubmit = async function(e) {
+        e.preventDefault();
+    
+        let formData = new FormData(this);
+    
+        const response = await fetch("/batch_predict", {
+            method: "POST",
+            body: formData
+        });
+    
+        const result = await response.json();
+    
+        if (result.error) {
+            document.getElementById("batchResult").innerText = "Error: " + result.error;
+        } else {
+            let html = "<h3>Batch Predictions</h3><table border='1' cellpadding='5'><tr>";
+            result.columns.forEach(col => html += `<th>${col}</th>`);
+            html += "</tr>";
+            result.data.forEach(row => {
+                html += "<tr>";
+                row.forEach(cell => html += `<td>${cell}</td>`);
+                html += "</tr>";
+            });
+            html += "</table>";
+            document.getElementById("batchResult").innerHTML = html;
+        }
+     }; 
+    
+</script>
+
+
+
+<a href="/logout"> Logout </a>
+    
+
+
+
+
+
+<!-- -- download link
+    document.getElementById('predict-btn').addEventListener('click', function() {
+        var formData = new FormData();
+        var fileInput = document.getElementById('csvFile');
+        formData.append('csvFile', fileInput.files[0]);
+    
+        fetch('/batch_predict', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.download_link) {
+                // Show download button
+                const downloadBtn = document.getElementById('download-btn');
+                downloadBtn.style.display = 'block';
+                downloadBtn.onclick = function() 
+                window.location.href = result.download_link;
+            }
+        } else {
+            alert(result.error);
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}); -->
+</body>
+</html>

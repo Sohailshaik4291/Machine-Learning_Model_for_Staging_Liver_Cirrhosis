@@ -1,0 +1,6 @@
+Age of the patient,Total Bilirubin,Direct Bilirubin,Alkphos Alkaline Phosphotase,Sgpt Alamine Aminotransferase,Sgot Aspartate Aminotransferase,Total Protiens,ALB Albumin,A/G Ratio Albumin and Globulin Ratio,Gender of the patient_Female,Gender of the patient_Male
+45,1.2,0.4,210,34,56,6.5,3.5,1.1,1,0
+50,2.3,1.0,330,80,120,6.0,3.1,1.0,0,1
+60,0.9,0.3,180,25,40,7.0,4.0,1.2,0,1
+35,3.0,1.5,400,90,110,5.5,2.9,0.9,1,0
+35,0.7,0.2,3,3.0,3.5,7,3.1,1.3,1,0
