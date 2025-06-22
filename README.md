@@ -18,7 +18,6 @@ A comprehensive Flask web application for predicting liver cirrhosis using machi
 - **Machine Learning**: scikit-learn, XGBoost, CatBoost
 - **Frontend**: HTML, CSS, JavaScript, Bootstrap
 - **Visualization**: Matplotlib, Plotly
-- **PDF Generation**: FPDF, ReportLab
 
 ## Installation
 
